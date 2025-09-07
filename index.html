@@ -3,35 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supabase Dashboard</title>
+    <title>Supabase Project Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
             color: #333;
+            line-height: 1.6;
         }
         .container {
             max-width: 1200px;
             margin: auto;
             background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
-        h1, h2 {
-            color: #4CAF50;
-            border-bottom: 2px solid #eee;
+        h1 {
+            color: #1a73e8;
+            text-align: center;
+            border-bottom: 2px solid #e0e0e0;
             padding-bottom: 10px;
+            margin-bottom: 20px;
         }
-        .data-section {
-            margin-bottom: 40px;
+        h2 {
+            color: #3c4043;
+            margin-top: 30px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
         }
         pre {
-            background-color: #f9f9f9;
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
             padding: 15px;
-            border-left: 5px solid #4CAF50;
+            border-radius: 5px;
             overflow-x: auto;
             white-space: pre-wrap;
             word-wrap: break-word;
@@ -39,27 +47,35 @@
         .loading {
             text-align: center;
             font-size: 1.2em;
-            color: #888;
+            color: #777;
+            padding: 50px;
+        }
+        .error {
+            color: #d93025;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Supabase Project Data Dashboard</h1>
-    <p>แสดงข้อมูลจากฐานข้อมูล Supabase ทั้งหมด</p>
+    <h1>Supabase Project Dashboard</h1>
+    <p style="text-align: center; color: #555;">แสดงข้อมูลจากฐานข้อมูล Supabase</p>
     
     <div id="data-container">
-        <p class="loading">กำลังดึงข้อมูล...</p>
+        <p class="loading">กำลังดึงข้อมูล... กรุณารอสักครู่</p>
     </div>
 </div>
 
 <script>
+    // ตั้งค่า URL และ Key ของ Supabase
     const supabaseUrl = 'https://wzwyotzzxycqfwercakh.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6d3lvdHp6eHljcWZ3ZXJjYWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNTg3MTMsImV4cCI6MjA3MjYzNDcxM30.lgiAf9oBUqsaWGb3u_80wuoKAODQHE_lIBxpGumhrno';
     
+    // สร้าง Supabase Client
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // รายชื่อตารางทั้งหมดที่ต้องการดึงข้อมูล
     const tables = [
         'admins', 
         'essay_answers', 
@@ -71,35 +87,44 @@
         'voice_answers'
     ];
 
+    // ฟังก์ชันสำหรับดึงและแสดงข้อมูล
     async function fetchData() {
         const container = document.getElementById('data-container');
-        container.innerHTML = ''; // Clear loading message
+        container.innerHTML = ''; // ลบข้อความ "กำลังดึงข้อมูล..."
 
         for (const table of tables) {
-            const { data, error } = await supabase.from(table).select('*');
-            
             const section = document.createElement('div');
-            section.className = 'data-section';
             
             const heading = document.createElement('h2');
             heading.textContent = `ตาราง: ${table}`;
             section.appendChild(heading);
 
             const pre = document.createElement('pre');
-            if (error) {
-                pre.textContent = `เกิดข้อผิดพลาดในการดึงข้อมูลจากตาราง ${table}: ${error.message}`;
-                pre.style.color = 'red';
-            } else if (data && data.length > 0) {
-                pre.textContent = JSON.stringify(data, null, 2);
-            } else {
-                pre.textContent = `ไม่พบข้อมูลในตาราง ${table}`;
+            
+            try {
+                // ดึงข้อมูลจาก Supabase
+                const { data, error } = await supabase.from(table).select('*');
+                
+                if (error) {
+                    pre.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
+                    pre.className = 'error';
+                } else if (data && data.length > 0) {
+                    pre.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    pre.textContent = 'ไม่พบข้อมูลในตารางนี้';
+                }
+            } catch (e) {
+                pre.textContent = `เกิดข้อผิดพลาดที่ไม่คาดคิด: ${e.message}`;
+                pre.className = 'error';
             }
+            
             section.appendChild(pre);
             container.appendChild(section);
         }
     }
 
-    fetchData();
+    // เรียกใช้ฟังก์ชันเมื่อหน้าเว็บโหลดเสร็จ
+    document.addEventListener('DOMContentLoaded', fetchData);
 </script>
 
 </body>
