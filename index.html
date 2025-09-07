@@ -3,135 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supabase Project Dashboard</title>
+    <title>Supabase Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f2f5;
-            color: #333;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            background: #fff;
-            padding: 20px 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #1a73e8;
-            text-align: center;
-            border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        h2 {
-            color: #3c4043;
-            margin-top: 30px;
-            border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 5px;
-        }
-        pre {
-            background-color: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-        .loading {
-            text-align: center;
-            font-size: 1.2em;
-            color: #777;
-            padding: 50px;
-        }
-        .error {
-            color: #d93025;
-            font-weight: bold;
-        }
-    </style>
 </head>
 <body>
+    <div id="data-container"></div>
 
-<div class="container">
-    <h1>Supabase Project Dashboard</h1>
-    <p style="text-align: center; color: #555;">แสดงข้อมูลจากฐานข้อมูล Supabase</p>
-    
-    <div id="data-container">
-        <p class="loading">กำลังดึงข้อมูล... กรุณารอสักครู่</p>
-    </div>
-</div>
+    <script>
+        // เมื่อเพิ่มบรรทัดด้านบนแล้ว ตอนนี้คุณสามารถใช้ createClient ได้แล้ว
+        const supabaseUrl = 'YOUR_SUPABASE_URL';
+        const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-<script>
-    // ตั้งค่า URL และ Public Key ของ Supabase
-    const supabaseUrl = 'https://wzwyotzzxycqfwercakh.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6d3lvdHp6eHljcWZ3ZXJjYWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNTg3MTMsImV4cCI6MjA3MjYzNDcxM30.lgiAf9oBUqsaWGb3u_80wuoKAODQHE_lIBxpGumhrno';
-    
-    // สร้าง Supabase Client จากค่าที่กำหนด
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // รายชื่อตารางทั้งหมดที่ต้องการดึงข้อมูล
-    const tables = [
-        'admins', 
-        'essay_answers', 
-        'multiple_choice_answers', 
-        'quiz_results', 
-        'subjective_answers', 
-        'submissions', 
-        'users', 
-        'voice_answers'
-    ];
-
-    /**
-     * ดึงข้อมูลจากแต่ละตารางและแสดงผล
-     */
-    async function fetchData() {
-        const container = document.getElementById('data-container');
-        container.innerHTML = ''; // ล้างข้อความ "กำลังดึงข้อมูล..."
-
-        for (const table of tables) {
-            const section = document.createElement('div');
-            
-            const heading = document.createElement('h2');
-            heading.textContent = `ตาราง: ${table}`;
-            section.appendChild(heading);
-
-            const pre = document.createElement('pre');
-            
-            try {
-                // ดึงข้อมูลจาก Supabase ด้วยคำสั่ง .select('*')
-                const { data, error } = await supabase.from(table).select('*');
-                
-                if (error) {
-                    // จัดการข้อผิดพลาดที่เกิดขึ้นขณะดึงข้อมูล
-                    pre.textContent = `เกิดข้อผิดพลาดในการดึงข้อมูล: ${error.message}`;
-                    pre.className = 'error';
-                } else if (data && data.length > 0) {
-                    // แปลงข้อมูลเป็น JSON string ที่อ่านง่าย
-                    pre.textContent = JSON.stringify(data, null, 2);
-                } else {
-                    // แสดงข้อความหากไม่พบข้อมูลในตาราง
-                    pre.textContent = 'ไม่พบข้อมูลในตารางนี้';
-                }
-            } catch (e) {
-                // จัดการข้อผิดพลาดที่ไม่คาดคิดอื่นๆ
-                pre.textContent = `เกิดข้อผิดพลาดที่ไม่คาดคิด: ${e.message}`;
-                pre.className = 'error';
-            }
-            
-            section.appendChild(pre);
-            container.appendChild(section);
-        }
-    }
-
-    // เรียกใช้ฟังก์ชัน fetchData เมื่อหน้าเว็บโหลดเสร็จสมบูรณ์
-    document.addEventListener('DOMContentLoaded', fetchData);
-</script>
-
+        // โค้ดสำหรับดึงข้อมูลของคุณ
+        // ...
+    </script>
 </body>
 </html>
+
