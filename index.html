@@ -68,11 +68,11 @@
 </div>
 
 <script>
-    // ตั้งค่า URL และ Key ของ Supabase
+    // ตั้งค่า URL และ Public Key ของ Supabase
     const supabaseUrl = 'https://wzwyotzzxycqfwercakh.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6d3lvdHp6eHljcWZ3ZXJjYWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNTg3MTMsImV4cCI6MjA3MjYzNDcxM30.lgiAf9oBUqsaWGb3u_80wuoKAODQHE_lIBxpGumhrno';
     
-    // สร้าง Supabase Client
+    // สร้าง Supabase Client จากค่าที่กำหนด
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // รายชื่อตารางทั้งหมดที่ต้องการดึงข้อมูล
@@ -87,10 +87,12 @@
         'voice_answers'
     ];
 
-    // ฟังก์ชันสำหรับดึงและแสดงข้อมูล
+    /**
+     * ดึงข้อมูลจากแต่ละตารางและแสดงผล
+     */
     async function fetchData() {
         const container = document.getElementById('data-container');
-        container.innerHTML = ''; // ลบข้อความ "กำลังดึงข้อมูล..."
+        container.innerHTML = ''; // ล้างข้อความ "กำลังดึงข้อมูล..."
 
         for (const table of tables) {
             const section = document.createElement('div');
@@ -102,18 +104,22 @@
             const pre = document.createElement('pre');
             
             try {
-                // ดึงข้อมูลจาก Supabase
+                // ดึงข้อมูลจาก Supabase ด้วยคำสั่ง .select('*')
                 const { data, error } = await supabase.from(table).select('*');
                 
                 if (error) {
-                    pre.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
+                    // จัดการข้อผิดพลาดที่เกิดขึ้นขณะดึงข้อมูล
+                    pre.textContent = `เกิดข้อผิดพลาดในการดึงข้อมูล: ${error.message}`;
                     pre.className = 'error';
                 } else if (data && data.length > 0) {
+                    // แปลงข้อมูลเป็น JSON string ที่อ่านง่าย
                     pre.textContent = JSON.stringify(data, null, 2);
                 } else {
+                    // แสดงข้อความหากไม่พบข้อมูลในตาราง
                     pre.textContent = 'ไม่พบข้อมูลในตารางนี้';
                 }
             } catch (e) {
+                // จัดการข้อผิดพลาดที่ไม่คาดคิดอื่นๆ
                 pre.textContent = `เกิดข้อผิดพลาดที่ไม่คาดคิด: ${e.message}`;
                 pre.className = 'error';
             }
@@ -123,7 +129,7 @@
         }
     }
 
-    // เรียกใช้ฟังก์ชันเมื่อหน้าเว็บโหลดเสร็จ
+    // เรียกใช้ฟังก์ชัน fetchData เมื่อหน้าเว็บโหลดเสร็จสมบูรณ์
     document.addEventListener('DOMContentLoaded', fetchData);
 </script>
 
