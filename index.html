@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #4CAF50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .data-section {
+            margin-bottom: 40px;
+        }
+        pre {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-left: 5px solid #4CAF50;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .loading {
+            text-align: center;
+            font-size: 1.2em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Supabase Project Data Dashboard</h1>
+    <p>แสดงข้อมูลจากฐานข้อมูล Supabase ทั้งหมด</p>
+    
+    <div id="data-container">
+        <p class="loading">กำลังดึงข้อมูล...</p>
+    </div>
+</div>
+
+<script>
+    const supabaseUrl = 'https://wzwyotzzxycqfwercakh.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6d3lvdHp6eHljcWZ3ZXJjYWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNTg3MTMsImV4cCI6MjA3MjYzNDcxM30.lgiAf9oBUqsaWGb3u_80wuoKAODQHE_lIBxpGumhrno';
+    
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const tables = [
+        'admins', 
+        'essay_answers', 
+        'multiple_choice_answers', 
+        'quiz_results', 
+        'subjective_answers', 
+        'submissions', 
+        'users', 
+        'voice_answers'
+    ];
+
+    async function fetchData() {
+        const container = document.getElementById('data-container');
+        container.innerHTML = ''; // Clear loading message
+
+        for (const table of tables) {
+            const { data, error } = await supabase.from(table).select('*');
+            
+            const section = document.createElement('div');
+            section.className = 'data-section';
+            
+            const heading = document.createElement('h2');
+            heading.textContent = `ตาราง: ${table}`;
+            section.appendChild(heading);
+
+            const pre = document.createElement('pre');
+            if (error) {
+                pre.textContent = `เกิดข้อผิดพลาดในการดึงข้อมูลจากตาราง ${table}: ${error.message}`;
+                pre.style.color = 'red';
+            } else if (data && data.length > 0) {
+                pre.textContent = JSON.stringify(data, null, 2);
+            } else {
+                pre.textContent = `ไม่พบข้อมูลในตาราง ${table}`;
+            }
+            section.appendChild(pre);
+            container.appendChild(section);
+        }
+    }
+
+    fetchData();
+</script>
+
+</body>
+</html>
